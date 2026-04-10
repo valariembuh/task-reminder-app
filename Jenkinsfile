@@ -3,50 +3,37 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
                 git branch: 'main',
                     url: 'https://github.com/valariembuh/task-reminder-app.git'
             }
         }
 
-        stage('Setup Python Environment') {
+        stage('Check Environment') {
             steps {
-                sh 'python3 --version'
-                sh 'pip3 install --upgrade pip'
-                sh 'pip3 install -r requirements.txt'
+                sh 'python --version || true'
+                sh 'pip --version || true'
+                sh 'docker --version || true'
             }
         }
 
-        stage('Test Application') {
+        stage('Install Dependencies') {
             steps {
-                sh 'python3 -m py_compile app.py'
+                sh 'pip install -r requirements.txt'
+            }
+        }
+
+        stage('Test App') {
+            steps {
+                sh 'python -m py_compile app.py'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t task-reminder-app:latest .'
+                sh 'docker build -t task-reminder-app .'
             }
-        }
-
-        stage('Run Container') {
-            steps {
-                sh '''
-                    docker stop task-reminder-app || true
-                    docker rm task-reminder-app || true
-                    docker run -d -p 8080:8080 --name task-reminder-app task-reminder-app:latest
-                '''
-            }
-        }
-    }
-
-    post {
-        success {
-            echo '✅ Pipeline completed successfully!'
-        }
-        failure {
-            echo '❌ Pipeline failed. Check logs.'
         }
     }
 }
