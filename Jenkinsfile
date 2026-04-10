@@ -16,14 +16,6 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                sh 'python3 -m ensurepip --upgrade || true'
-                sh 'python3 -m pip install --upgrade pip || true'
-                sh 'python3 -m pip install -r requirements.txt || true'
-            }
-        }
-
         stage('Test App') {
             steps {
                 sh 'python3 -m py_compile app.py'
@@ -34,15 +26,6 @@ pipeline {
             steps {
                 sh 'docker build -t task-reminder-app:latest .'
             }
-        }
-    }
-
-    post {
-        success {
-            echo '✅ Pipeline SUCCESS'
-        }
-        failure {
-            echo '❌ Pipeline FAILED'
         }
     }
 }
