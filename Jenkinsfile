@@ -10,30 +10,39 @@ pipeline {
             }
         }
 
-        stage('Check Environment') {
+        stage('Check Python') {
             steps {
-                sh 'python --version || true'
-                sh 'pip --version || true'
-                sh 'docker --version || true'
+                sh 'python3 --version'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh 'pip install -r requirements.txt'
+                sh 'python3 -m ensurepip --upgrade || true'
+                sh 'python3 -m pip install --upgrade pip || true'
+                sh 'python3 -m pip install -r requirements.txt || true'
             }
         }
 
         stage('Test App') {
             steps {
-                sh 'python -m py_compile app.py'
+                sh 'python3 -m py_compile app.py'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t task-reminder-app .'
+                sh 'docker build -t task-reminder-app:latest .'
             }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Pipeline SUCCESS'
+        }
+        failure {
+            echo '❌ Pipeline FAILED'
         }
     }
 }
