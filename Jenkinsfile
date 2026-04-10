@@ -1,23 +1,26 @@
-ipipeline {
+pipeline {
     agent any
 
     stages {
 
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/valariembuh/task-reminder-app.git'
+                git branch: 'main',
+                    url: 'https://github.com/valariembuh/task-reminder-app.git'
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Setup Python Environment') {
             steps {
-                sh 'pip install -r requirements.txt'
+                sh 'python3 --version'
+                sh 'pip3 install --upgrade pip'
+                sh 'pip3 install -r requirements.txt'
             }
         }
 
-        stage('Test App') {
+        stage('Test Application') {
             steps {
-                sh 'python -m py_compile app.py'
+                sh 'python3 -m py_compile app.py'
             }
         }
 
@@ -27,5 +30,23 @@ ipipeline {
             }
         }
 
+        stage('Run Container') {
+            steps {
+                sh '''
+                    docker stop task-reminder-app || true
+                    docker rm task-reminder-app || true
+                    docker run -d -p 8080:8080 --name task-reminder-app task-reminder-app:latest
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Pipeline completed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed. Check logs.'
+        }
     }
 }
