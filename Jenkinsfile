@@ -1,27 +1,23 @@
-pipeline {
+ipipeline {
     agent any
-
-    tools {
-        maven 'Maven3'
-    }
 
     stages {
 
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/YOUR_USERNAME/YOUR_REPO.git'
+                git 'https://github.com/valariembuh/task-reminder-app.git'
             }
         }
 
-        stage('Build with Maven') {
+        stage('Install Dependencies') {
             steps {
-                sh 'mvn clean package'
+                sh 'pip install -r requirements.txt'
             }
         }
 
-        stage('Run Tests') {
+        stage('Test App') {
             steps {
-                sh 'mvn test'
+                sh 'python -m py_compile app.py'
             }
         }
 
@@ -31,11 +27,5 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                sh 'kubectl apply -f k8s/deployment.yaml'
-                sh 'kubectl apply -f k8s/service.yaml'
-            }
-        }
     }
 }
